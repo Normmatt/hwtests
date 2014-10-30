@@ -2,6 +2,8 @@
 
 #include <string.h>
 #include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <3ds.h>
 
 #include "text.h"
@@ -56,4 +58,19 @@ void drawFrame()
 
 	gfxFlushBuffers();
 	gfxSwapBuffers();
+}
+
+void print(const char* format, ...)
+{
+	va_list arguments;
+	char new_str[512];
+
+	va_start(arguments, format);
+	vsprintf(new_str, format, arguments);
+	va_end(arguments);
+
+	sprintf(&superStr[strlen(superStr)], new_str);
+	svcOutputDebugString(new_str, strlen(new_str));
+
+	drawFrame();
 }

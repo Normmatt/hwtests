@@ -1,9 +1,9 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
-#define print(...) sprintf(&superStr[strlen(superStr)], __VA_ARGS__); drawFrame()
+extern char superStr[];
 
 void drawFrame();
-extern char superStr[];
+void print(const char* format, ...);
 
 #endif
