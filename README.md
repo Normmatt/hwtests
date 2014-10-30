@@ -1,8 +1,9 @@
-fs-test
-=======
+# ctru-test
 
-A really shitty homebrew test for the SDMC filesystem.
-
-Adapted from smea's ftpony.
+The beginnings of a homebrew test for Citra.
 
 Press A to run, press B to close.
+
+### Thanks to
+
+Smealum, because this program was created using ftpony as a template.

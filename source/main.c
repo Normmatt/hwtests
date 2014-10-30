@@ -26,7 +26,8 @@ int main()
 
 	APP_STATUS status;
 	while ((status=aptGetStatus()) != APP_EXITING) {
-		if (status == APP_RUNNING) {
+		switch (status) {
+		case APP_RUNNING:
 			drawFrame();
 
 			hidScanInput();
@@ -37,13 +38,16 @@ int main()
 					FSUSER_CreateDirectory(NULL, sdmcArchive, FS_makePath(PATH_CHAR, "/new_dir"))
 				);
 			}
-		}
-		else if (status == APP_SUSPENDING) {
+
+			break;
+		case APP_SUSPENDING:
 			aptReturnToMenu();
-		}
-		else if (status == APP_SLEEPMODE) {
+			break;
+		case APP_SLEEPMODE:
 			aptWaitStatusEvent();
+			break;
 		}
+
 		gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
 
