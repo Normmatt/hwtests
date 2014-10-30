@@ -45,23 +45,20 @@ void drawFrame()
 	u8* bufAdr = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
 
 	int x, y;
-	for (x = 1; x < 400; x++)
-	{
-		for (y = 1; y < 240; y++)
-		{
+	for (x = 1; x < 400; x++) {
+		for (y = 1; y < 240; y++) {
 			u32 v=(y + x * 240) * 3;
 			bufAdr[v]   = (pcCos(x + cnt) + 4096) / 32;
 			bufAdr[v+1] = (pcCos(y - 256 + cnt) + 4096) / 64;
 			bufAdr[v+2] = (pcCos(x + 128 - cnt) + 4096) / 32;
 		}
 	}
-	gfxDrawText(GFX_TOP, GFX_LEFT, NULL, "ftPONY v0.0002\n", 240 - fontDefault.height * 1, 10);
 	x = countLines(superStr);
 	while (x > (240 / fontDefault.height - 3)) {
 		cutLine(superStr);
 		x--;
 	}
-	gfxDrawText(GFX_TOP, GFX_LEFT, NULL, superStr, 240 - fontDefault.height * 3, 20);
+	gfxDrawText(GFX_TOP, GFX_LEFT, NULL, superStr, 240 - fontDefault.height * 3, 10);
 	cnt++;
 
 	gfxFlushBuffers();
@@ -76,25 +73,21 @@ int main()
 	gfxInit();
 	gfxSet3D(false);
 
+	superStr[0]=0;
+
 	print("fsInit %08X\n", (unsigned int)
 		fsInit()
 	);
 
-	FS_archive sdmcArchive = (FS_archive) {
-		0x00000009, (FS_path) { PATH_EMPTY, 1, (u8*) "" }
-	};
+	FS_archive sdmcArchive = { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
 
 	print("FSUSER_OpenArchive %08X\n", (unsigned int)
 		FSUSER_OpenArchive(NULL, &sdmcArchive)
 	);
 
-	superStr[0]=0;
-
 	APP_STATUS status;
-	while ((status=aptGetStatus()) != APP_EXITING)
-	{
-		if (status == APP_RUNNING)
-		{
+	while ((status=aptGetStatus()) != APP_EXITING) {
+		if (status == APP_RUNNING) {
 			drawFrame();
 
 			hidScanInput();
@@ -106,12 +99,10 @@ int main()
 				);
 			}
 		}
-		else if (status == APP_SUSPENDING)
-		{
+		else if (status == APP_SUSPENDING) {
 			aptReturnToMenu();
 		}
-		else if (status == APP_SLEEPMODE)
-		{
+		else if (status == APP_SLEEPMODE) {
 			aptWaitStatusEvent();
 		}
 		gspWaitForEvent(GSPEVENT_VBlank0, false);
