@@ -12,7 +12,7 @@ int main()
 	gfxInit();
 	gfxSet3D(false);
 
-	superStr[0]=0;
+	superStr[0] = 0;
 
 	print("fsInit %08X\n", (unsigned int)
 		fsInit()
