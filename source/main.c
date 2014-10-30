@@ -3,6 +3,12 @@
 #include <3ds.h>
 
 #include "output.h"
+#include "test_fs.h"
+
+static int testCounter = 0;
+static void (*tests[]) (void) = {
+	FS_TestAll
+};
 
 int main()
 {
@@ -12,38 +18,34 @@ int main()
 	gfxInit();
 	gfxSet3D(false);
 
-	superStr[0] = 0;
-
-	print("fsInit %08X\n", (unsigned int)
-		fsInit()
-	);
-
-	FS_archive sdmcArchive = { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
-
-	print("FSUSER_OpenArchive %08X\n", (unsigned int)
-		FSUSER_OpenArchive(NULL, &sdmcArchive)
-	);
+	clearScreen();
+	print("Press A to begin...\n");
 
 	APP_STATUS status;
-	while ((status=aptGetStatus()) != APP_EXITING) {
-		switch (status) {
-		case APP_RUNNING:
+	while ((status = aptGetStatus()) != APP_EXITING) {
+		if (status == APP_RUNNING) {
 			drawFrame();
 
 			hidScanInput();
 			if (hidKeysDown() & KEY_B) {
 				break;
 			} else if (hidKeysDown() & KEY_A) {
-				print("FSUSER_CreateDirectory %08X\n", (unsigned int)
-					FSUSER_CreateDirectory(NULL, sdmcArchive, FS_makePath(PATH_CHAR, "/new_dir"))
-				);
+				clearScreen();
+
+				if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
+					tests[testCounter]();
+					testCounter++;
+				} else {
+					break;
+				}
+
+				print("\n");
+				print("Press A to continue...\n");
 			}
 
-			break;
-		case APP_SUSPENDING:
+		} else if (status == APP_SUSPENDING) {
 			aptReturnToMenu();
-			break;
-		case APP_SLEEPMODE:
+		} else if (status == APP_SLEEPMODE) {
 			aptWaitStatusEvent();
 			break;
 		}
@@ -51,6 +53,7 @@ int main()
 		gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
 
+	clearScreen();
 	gfxExit();
 	hidExit();
 	aptExit();

@@ -8,7 +8,7 @@
 
 #include "text.h"
 
-char superStr[8192];
+static char superStr[8192];
 static int cnt;
 
 static int countLines(const char* str)
@@ -72,5 +72,11 @@ void print(const char* format, ...)
 	sprintf(&superStr[strlen(superStr)], new_str);
 	svcOutputDebugString(new_str, strlen(new_str));
 
+	drawFrame();
+}
+
+void clearScreen()
+{
+	superStr[0] = 0;
 	drawFrame();
 }
