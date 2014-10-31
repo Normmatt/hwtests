@@ -19,4 +19,6 @@ void FS_TestSdmcOpenDir();
 // FS_TestSdmcDeleteDirRecursively();
 void FS_TestSdmcClose();
 
+void FS_TestExit();
+
 #endif
