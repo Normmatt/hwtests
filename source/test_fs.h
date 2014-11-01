@@ -1,5 +1,4 @@
-#ifndef TEST_FS_H
-#define TEST_FS_H
+#pragma once
 
 void FS_TestAll();
 
@@ -20,5 +19,3 @@ void FS_TestSdmcOpenDir();
 void FS_TestSdmcClose();
 
 void FS_TestExit();
-
-#endif

@@ -1,8 +1,8 @@
-#ifndef OUTPUT_H
-#define OUTPUT_H
+#pragma once
 
-void drawFrame();
-void print(const char* format, ...);
-void clearScreen();
+#include <3ds/gfx.h>
 
-#endif
+void drawFrames();
+void print(gfxScreen_t screen, const char* format, ...);
+void clearScreen(gfxScreen_t screen);
+void clearScreens();

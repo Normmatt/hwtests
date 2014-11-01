@@ -18,19 +18,19 @@ int main()
 	gfxInit();
 	gfxSet3D(false);
 
-	clearScreen();
-	print("Press A to begin...\n");
+	clearScreens();
+	print(GFX_TOP, "Press A to begin...\n");
 
 	APP_STATUS status;
 	while ((status = aptGetStatus()) != APP_EXITING) {
 		if (status == APP_RUNNING) {
-			drawFrame();
+			drawFrames();
 
 			hidScanInput();
 			if (hidKeysDown() & KEY_B) {
 				break;
 			} else if (hidKeysDown() & KEY_A) {
-				clearScreen();
+				clearScreen(GFX_TOP);
 
 				if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
 					tests[testCounter]();
@@ -39,8 +39,8 @@ int main()
 					break;
 				}
 
-				print("\n");
-				print("Press A to continue...\n");
+				print(GFX_TOP, "\n");
+				print(GFX_TOP, "Press A to continue...\n");
 			}
 
 		} else if (status == APP_SUSPENDING) {
@@ -53,7 +53,7 @@ int main()
 		gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
 
-	clearScreen();
+	clearScreens();
 	gfxExit();
 	hidExit();
 	aptExit();

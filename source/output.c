@@ -8,7 +8,8 @@
 
 #include "text.h"
 
-static char superStr[8192];
+static char bufferTop[8192];
+static char bufferBottom[8192];
 static int cnt;
 
 static int countLines(const char* str)
@@ -35,48 +36,70 @@ static void cutLine(char* str)
 	memmove(str, str2, strlen(str2) + 1);
 }
 
-void drawFrame()
+static void drawFrame(gfxScreen_t screen, char b, char g, char r)
 {
-	u8* bufAdr = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+	int screenWidth;
+	char* textBuffer;
+	if (screen == GFX_TOP) {
+		screenWidth = 400;
+		textBuffer = bufferTop;
+	} else {
+		screenWidth = 320;
+		textBuffer = bufferBottom;
+	}
+
+	u8* bufAdr = gfxGetFramebuffer(screen, GFX_LEFT, NULL, NULL);
 	int x, y;
-	for (x = 1; x < 400; x++) {
+	for (x = 1; x < screenWidth; x++) {
 		for (y = 1; y < 240; y++) {
 			u32 v=(y + x * 240) * 3;
-			bufAdr[v]   = 0x88;
-			bufAdr[v+1] = 0x66;
-			bufAdr[v+2] = 0x00;
+			bufAdr[v]   = b;
+			bufAdr[v+1] = g;
+			bufAdr[v+2] = r;
 		}
 	}
 
-	x = countLines(superStr);
+	x = countLines(textBuffer);
 	while (x > (240 / fontDefault.height - 3)) {
-		cutLine(superStr);
+		cutLine(textBuffer);
 		x--;
 	}
-	gfxDrawText(GFX_TOP, GFX_LEFT, NULL, superStr, 240 - fontDefault.height * 3, 10);
+	gfxDrawText(screen, GFX_LEFT, NULL, textBuffer, 240 - fontDefault.height * 3, 10);
 	cnt++;
+}
 
+void drawFrames()
+{
+	drawFrame(GFX_TOP, 0x88, 0x66, 0x00);
+	drawFrame(GFX_BOTTOM, 0x00, 0x00, 0x00);
 	gfxFlushBuffers();
 	gfxSwapBuffers();
 }
 
-void print(const char* format, ...)
+void print(gfxScreen_t screen, const char* format, ...)
 {
+	char* textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
 	va_list arguments;
-	char new_str[512];
+	char newStr[512];
 
 	va_start(arguments, format);
-	vsprintf(new_str, format, arguments);
+	vsprintf(newStr, format, arguments);
 	va_end(arguments);
 
-	sprintf(&superStr[strlen(superStr)], new_str);
-	svcOutputDebugString(new_str, strlen(new_str));
+	sprintf(&textBuffer[strlen(textBuffer)], newStr);
+	svcOutputDebugString(newStr, strlen(newStr));
 
-	drawFrame();
+	drawFrames();
 }
 
-void clearScreen()
+void clearScreen(gfxScreen_t screen)
 {
-	superStr[0] = 0;
-	drawFrame();
+	bufferTop[0] = 0;
+	drawFrames();
+}
+
+void clearScreens()
+{
+	clearScreen(GFX_TOP);
+	clearScreen(GFX_BOTTOM);
 }

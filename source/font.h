@@ -1,5 +1,4 @@
-#ifndef FONT_H
-#define FONT_H
+#pragma once
 
 typedef struct {
 	char c;
@@ -19,5 +18,3 @@ extern u8 font1Data[];
 extern charDesc_s font1Desc[];
 
 extern font_s fontDefault;
-
-#endif
