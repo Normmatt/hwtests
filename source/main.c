@@ -21,33 +21,24 @@ int main()
 	clearScreens();
 	print(GFX_TOP, "Press A to begin...\n");
 
-	APP_STATUS status;
-	while ((status = aptGetStatus()) != APP_EXITING) {
-		if (status == APP_RUNNING) {
-			drawFrames();
+	while (aptMainLoop()) {
+		drawFrames();
 
-			hidScanInput();
-			if (hidKeysDown() & KEY_B) {
+		hidScanInput();
+		if (hidKeysDown() & KEY_B) {
+			break;
+		} else if (hidKeysDown() & KEY_A) {
+			clearScreen(GFX_TOP);
+
+			if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
+				tests[testCounter]();
+				testCounter++;
+			} else {
 				break;
-			} else if (hidKeysDown() & KEY_A) {
-				clearScreen(GFX_TOP);
-
-				if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
-					tests[testCounter]();
-					testCounter++;
-				} else {
-					break;
-				}
-
-				print(GFX_TOP, "\n");
-				print(GFX_TOP, "Press A to continue...\n");
 			}
 
-		} else if (status == APP_SUSPENDING) {
-			aptReturnToMenu();
-		} else if (status == APP_SLEEPMODE) {
-			aptWaitStatusEvent();
-			break;
+			print(GFX_TOP, "\n");
+			print(GFX_TOP, "Press A to continue...\n");
 		}
 
 		gspWaitForEvent(GSPEVENT_VBlank0, false);
