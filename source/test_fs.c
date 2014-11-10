@@ -52,6 +52,14 @@ static void FS_TestSdmc()
 	unsigned int closeDirResult = FSDIR_Close(dirHandle);
 	print(GFX_TOP, "SDMC: Closing Directory .. - [%u]\n", closeDirResult);
 
+	// Delete File
+	unsigned int deleteFileResult = FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
+	print(GFX_TOP, "SDMC: Deleting File .. - [%u]\n", deleteFileResult);	
+
+	// Delete Directory
+	unsigned int deleteDirResult = FSUSER_DeleteDirectory(NULL, sdmcArchive, dirPath);
+	print(GFX_TOP, "SDMC: Deleting Directory .. - [%u]\n", deleteDirResult);
+
 	// Close SDMC
 	unsigned int closeArchiveResult = FSUSER_CloseArchive(NULL, &sdmcArchive);
 	print(GFX_TOP, "SDMC: Closing SDMC Archive - [%u]\n", closeArchiveResult);
