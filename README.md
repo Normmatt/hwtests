@@ -1,6 +1,6 @@
-# ctru-test
+# citra-hwtests 
 
-The beginnings of a homebrew test for Citra.
+The beginnings of a homebrew test suite for Citra.
 
 Press A to run, press B to close.
 
