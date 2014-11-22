@@ -7,47 +7,47 @@
 
 static unsigned int testCounter = 0;
 static void (*tests[]) (void) = {
-	FS::TestAll
+    FS::TestAll
 };
 
 int main()
 {
-	srvInit();
-	aptInit();
-	hidInit(NULL);
-	gfxInit();
-	gfxSet3D(false);
+    srvInit();
+    aptInit();
+    hidInit(NULL);
+    gfxInit();
+    gfxSet3D(false);
 
-	clearScreens();
-	print(GFX_TOP, "Press A to begin...\n");
+    clearScreens();
+    print(GFX_TOP, "Press A to begin...\n");
 
-	while (aptMainLoop()) {
-		drawFrames();
+    while (aptMainLoop()) {
+    	drawFrames();
 
-		hidScanInput();
-		if (hidKeysDown() & KEY_START) {
-			break;
-		} else if (hidKeysDown() & KEY_A) {
-			clearScreen(GFX_TOP);
+    	hidScanInput();
+    	if (hidKeysDown() & KEY_START) {
+    		break;
+    	} else if (hidKeysDown() & KEY_A) {
+    		clearScreen(GFX_TOP);
 
-			if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
-				tests[testCounter]();
-				testCounter++;
-			} else {
-				break;
-			}
+    		if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
+    			tests[testCounter]();
+    			testCounter++;
+    		} else {
+    			break;
+    		}
 
-			print(GFX_TOP, "\n");
-			print(GFX_TOP, "Press A to continue...\n");
-		}
+    		print(GFX_TOP, "\n");
+    		print(GFX_TOP, "Press A to continue...\n");
+    	}
 
-		gspWaitForEvent(GSPEVENT_VBlank0, false);
-	}
+    	gspWaitForEvent(GSPEVENT_VBlank0, false);
+    }
 
-	clearScreens();
-	gfxExit();
-	hidExit();
-	aptExit();
-	srvExit();
-	return 0;
+    clearScreens();
+    gfxExit();
+    hidExit();
+    aptExit();
+    srvExit();
+    return 0;
 }
