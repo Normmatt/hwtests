@@ -22,26 +22,26 @@ int main()
     print(GFX_TOP, "Press A to begin...\n");
 
     while (aptMainLoop()) {
-    	drawFrames();
+        drawFrames();
 
-    	hidScanInput();
-    	if (hidKeysDown() & KEY_START) {
-    		break;
-    	} else if (hidKeysDown() & KEY_A) {
-    		clearScreen(GFX_TOP);
+        hidScanInput();
+        if (hidKeysDown() & KEY_START) {
+            break;
+        } else if (hidKeysDown() & KEY_A) {
+            clearScreen(GFX_TOP);
 
-    		if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
-    			tests[testCounter]();
-    			testCounter++;
-    		} else {
-    			break;
-    		}
+            if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
+                tests[testCounter]();
+                testCounter++;
+            } else {
+                break;
+            }
 
-    		print(GFX_TOP, "\n");
-    		print(GFX_TOP, "Press A to continue...\n");
-    	}
+            print(GFX_TOP, "\n");
+            print(GFX_TOP, "Press A to continue...\n");
+        }
 
-    	gspWaitForEvent(GSPEVENT_VBlank0, false);
+        gspWaitForEvent(GSPEVENT_VBlank0, false);
     }
 
     clearScreens();
