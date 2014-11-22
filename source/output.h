@@ -1,6 +1,6 @@
 #pragma once
 
-#include <3ds/gfx.h>
+#include <3ds.h>
 
 void drawFrames();
 void print(gfxScreen_t screen, const char* format, ...);
