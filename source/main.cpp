@@ -5,9 +5,9 @@
 #include "output.h"
 #include "test_fs.h"
 
-static int testCounter = 0;
+static unsigned int testCounter = 0;
 static void (*tests[]) (void) = {
-	FS_TestAll
+	FS::TestAll
 };
 
 int main()
@@ -25,7 +25,7 @@ int main()
 		drawFrames();
 
 		hidScanInput();
-		if (hidKeysDown() & KEY_B) {
+		if (hidKeysDown() & KEY_START) {
 			break;
 		} else if (hidKeysDown() & KEY_A) {
 			clearScreen(GFX_TOP);

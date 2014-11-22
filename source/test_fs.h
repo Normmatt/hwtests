@@ -1,4 +1,7 @@
 #pragma once
 
-void FS_TestAll();
+namespace FS {
 
+void TestAll();
+
+}

@@ -12,7 +12,6 @@
 
 static std::string bufferTop;
 static std::string bufferBottom;
-static int cnt;
 
 static int countLines(const std::string& str)
 {
@@ -42,7 +41,7 @@ static void deleteFirstLine(std::string* str)
     *str = str->substr(linebreak + 1);
 }
 
-static void drawFrame(gfxScreen_t screen, char b, char g, char r)
+static void drawFrame(gfxScreen_t screen, u8 b, u8 g, u8 r)
 {
 	int screenWidth;
 	std::string textBuffer;
@@ -54,24 +53,20 @@ static void drawFrame(gfxScreen_t screen, char b, char g, char r)
 		textBuffer = bufferBottom;
 	}
 
+    // Fill screen with color (TODO: find more efficient way to do this)
 	u8* bufAdr = gfxGetFramebuffer(screen, GFX_LEFT, NULL, NULL);
-	int x, y;
-	for (x = 1; x < screenWidth; x++) {
-		for (y = 1; y < 240; y++) {
-			u32 v=(y + x * 240) * 3;
-			bufAdr[v]   = b;
-			bufAdr[v+1] = g;
-			bufAdr[v+2] = r;
-		}
+	for (int i = 0; i < screenWidth * 240 * 3; i += 3) {
+		bufAdr[i]   = b;
+		bufAdr[i+1] = g;
+		bufAdr[i+2] = r;
 	}
 
-	x = countLines(textBuffer);
-	while (x > (240 / fontDefault.height - 3)) {
+	int lines = countLines(textBuffer);
+	while (lines > (240 / fontDefault.height - 3)) {
 		deleteFirstLine(&textBuffer);
-		x--;
+		lines--;
 	}
-	gfxDrawText(screen, GFX_LEFT, NULL, textBuffer.c_str(), 240 - fontDefault.height * 3, 10);
-	cnt++;
+    gfxDrawText(screen, GFX_LEFT, NULL, textBuffer.c_str(), 240 - fontDefault.height * 3, 10);
 }
 
 void drawFrames()
@@ -100,7 +95,8 @@ void print(gfxScreen_t screen, const char* format, ...)
 
 void clearScreen(gfxScreen_t screen)
 {
-	bufferTop[0] = 0;
+    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
+	textBuffer.clear();
 	drawFrames();
 }
 

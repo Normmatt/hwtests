@@ -4,7 +4,9 @@
 
 #include "test.h"
 
-static void FS_TestSdmc()
+namespace FS {
+
+static void TestSDMC()
 {
 	FS_archive sdmcArchive = (FS_archive) { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
 	
@@ -80,15 +82,17 @@ static void FS_TestSdmc()
 }
 
 
-void FS_TestAll()
+void TestAll()
 {
 	TestResult("FS", "Initializing service", [&]{
 		return fsInit();
 	});
 
-	FS_TestSdmc();
+	TestSDMC();
 
 	TestResult("FS", "Exiting service", [&]{
 		return fsExit();
 	});
 }
+
+} // namespace
