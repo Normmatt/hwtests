@@ -17,6 +17,11 @@ static void TestSDMC()
     Handle fileHandle;
     u64 fileSize;
     
+    // Post-dir-rename
+    FS_path newDirPath = FS_makePath(PATH_CHAR, "/new_dir_renamed");
+    // Post-both-rename
+    FS_path newFilePath = FS_makePath(PATH_CHAR, "/new_dir_renamed/new_file_renamed.txt");
+    
     u32 bytesWritten;
 
     // Open SDMC
@@ -64,15 +69,27 @@ static void TestSDMC()
     TestResult("SDMC", "Closing directory handle", [&]{
         return FSDIR_Close(dirHandle);
     });
+    
+    // Rename Directory
+    TestResult("SDMC", "Renaming directory", [&]{
+        return FSUSER_RenameDirectory(NULL, sdmcArchive, dirPath, sdmcArchive, newDirPath);
+    });
+    
+    // Rename File
+    TestResult("SDMC", "Renaming file", [&]{
+        // Post-dir-rename, pre-file-rename
+        FS_path newDirFilePath = FS_makePath(PATH_CHAR, "/new_dir_renamed/new_file.txt");
+        return FSUSER_RenameFile(NULL, sdmcArchive, newDirFilePath, sdmcArchive, newFilePath);
+    });
 
     // Delete File
     TestResult("SDMC", "Deleting file", [&]{
-        return FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
+        return FSUSER_DeleteFile(NULL, sdmcArchive, newFilePath);
     });    
 
     // Delete Directory
     TestResult("SDMC", "Deleting directory", [&]{
-        return FSUSER_DeleteDirectory(NULL, sdmcArchive, dirPath);
+        return FSUSER_DeleteDirectory(NULL, sdmcArchive, newDirPath);
     });
 
     // Close SDMC
