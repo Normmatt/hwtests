@@ -6,90 +6,149 @@
 
 namespace FS {
 
+static bool TestSDMCFileCreateDelete(FS_archive sdmcArchive)
+{
+    Handle fileHandle;
+    const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_create_delete.txt");
+    
+    // Create file (not interested in opening the handle)
+    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0) == 0);
+    FSFILE_Close(fileHandle);
+    
+    // Make sure the new file exists
+    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_READ, 0) == 0);
+    FSFILE_Close(fileHandle);
+
+    SoftAssert(FSUSER_DeleteFile(NULL, sdmcArchive, filePath) == 0);
+
+    // Should fail to make sure the file no longer exists
+    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_READ, 0) != 0);
+    FSFILE_Close(fileHandle);
+
+    return true;
+}
+
+static bool TestSDMCFileRename(FS_archive sdmcArchive)
+{
+    Handle fileHandle;
+    const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_rename.txt");
+    const static FS_path newFilePath = FS_makePath(PATH_CHAR, "/test_file_rename_new.txt");
+    
+    // Create file (not interested in opening the handle)
+    FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0);
+    FSFILE_Close(fileHandle);
+    
+    SoftAssert(FSUSER_RenameFile(NULL, sdmcArchive, filePath, sdmcArchive, newFilePath) == 0);
+    
+    // Should fail to make sure the old file no longer exists
+    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_READ, 0) != 0);
+    FSFILE_Close(fileHandle);
+    // Make sure the new file exists
+    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, newFilePath, FS_OPEN_READ, 0) == 0);
+    FSFILE_Close(fileHandle);
+    
+    SoftAssert(FSUSER_DeleteFile(NULL, sdmcArchive, newFilePath) == 0);
+    
+    return true;
+}
+
+static bool TestSDMCFileWrite(FS_archive sdmcArchive)
+{
+    Handle fileHandle;
+    u32 bytesWritten;
+    u64 fileSize;
+    
+    const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_write.txt");
+    const static char* stringWritten = "A string\n";
+    
+    // Create file
+    FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0);
+    
+    // Write to file
+    SoftAssert(FSFILE_Write(fileHandle, &bytesWritten, 0, stringWritten, strlen(stringWritten), FS_WRITE_FLUSH) == 0);
+
+    // Check file size
+    SoftAssert(FSFILE_GetSize(fileHandle, &fileSize) == 0);
+    // Verify file size
+    SoftAssert(fileSize == bytesWritten);
+    
+    FSFILE_Close(fileHandle);
+    FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
+    
+    return true;
+}
+
+static bool TestSDMCDirCreateDelete(FS_archive sdmcArchive)
+{
+    Handle dirHandle;
+    const static FS_path dirPath = FS_makePath(PATH_CHAR, "/test_dir_create_delete");
+    
+    // Create directory
+    SoftAssert(FSUSER_CreateDirectory(NULL, sdmcArchive, dirPath) == 0);
+    
+    // Make sure the new dir exists
+    SoftAssert(FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath) == 0);
+    FSDIR_Close(dirHandle);
+    
+    SoftAssert(FSUSER_DeleteDirectory(NULL, sdmcArchive, dirPath) == 0);
+    
+    // Should fail to make sure the dir no longer exists
+    SoftAssert(FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath) != 0);
+    FSDIR_Close(dirHandle);
+    
+    return true;
+}
+
+static bool TestSDMCDirRename(FS_archive sdmcArchive)
+{
+    Handle dirHandle;
+    const static FS_path dirPath = FS_makePath(PATH_CHAR, "/test_dir_rename");
+    const static FS_path newDirPath = FS_makePath(PATH_CHAR, "/test_dir_rename_new");
+    
+    // Create dir
+    FSUSER_CreateDirectory(NULL, sdmcArchive, dirPath);
+    
+    SoftAssert(FSUSER_RenameDirectory(NULL, sdmcArchive, dirPath, sdmcArchive, newDirPath) == 0);
+    
+    // Should fail to make sure the old dir no longer exists
+    SoftAssert(FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath) != 0);
+    FSDIR_Close(dirHandle);
+    // Make sure the new dir exists
+    SoftAssert(FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, newDirPath) == 0);
+    FSDIR_Close(dirHandle);
+    
+    SoftAssert(FSUSER_DeleteDirectory(NULL, sdmcArchive, newDirPath) == 0);
+    
+    return true;
+}
+
 static void TestSDMC()
 {
     FS_archive sdmcArchive = (FS_archive) { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
-    
-    FS_path dirPath = FS_makePath(PATH_CHAR, "/new_dir");
-    Handle dirHandle;
-    
-    FS_path filePath = FS_makePath(PATH_CHAR, "/new_dir/new_file.txt");
-    Handle fileHandle;
-    u64 fileSize;
-    
-    // Post-dir-rename
-    FS_path newDirPath = FS_makePath(PATH_CHAR, "/new_dir_renamed");
-    // Post-both-rename
-    FS_path newFilePath = FS_makePath(PATH_CHAR, "/new_dir_renamed/new_file_renamed.txt");
-    
-    u32 bytesWritten;
 
     // Open SDMC
     TestResult("SDMC", "Opening archive", [&]{
         return FSUSER_OpenArchive(NULL, &sdmcArchive);
     });
-
-    // Create Directory
-    TestResult("SDMC", "Creating directory", [&]{
-        return FSUSER_CreateDirectory(NULL, sdmcArchive, dirPath);
-    });
-
-    // Open Directory
-    TestResult("SDMC", "Opening directory handle", [&]{
-        return FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath);
-    });
-
-    // Open File
-    TestResult("SDMC", "Opening file handle", [&]{
-        return FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_WRITE | FS_OPEN_CREATE, 0);
-    });
-
-    // Write File
-    TestResult("SDMC", "Writing data to file", [&]{
-        const char* stringWritten = "A string\n";
-        return FSFILE_Write(fileHandle, &bytesWritten, 0, stringWritten, strlen(stringWritten), FS_WRITE_FLUSH);
-    });
-
-    // Check File Size
-    TestResult("SDMC", "Getting size of file", [&]{
-        return FSFILE_GetSize(fileHandle, &fileSize);
-    });
-
-    // Verify File Size
-    Test("SDMC", "Verifying size with written bytes", [&]{
-        return fileSize == bytesWritten;
-    });
-
-    // Close File
-    TestResult("SDMC", "Closing file handle", [&]{
-        return FSFILE_Close(fileHandle);
-    });
-
-    // Close Directory
-    TestResult("SDMC", "Closing directory handle", [&]{
-        return FSDIR_Close(dirHandle);
+    
+    Test("SDMC", "Creating and deleting file", [&] {
+        return TestSDMCFileCreateDelete(sdmcArchive);
     });
     
-    // Rename Directory
-    TestResult("SDMC", "Renaming directory", [&]{
-        return FSUSER_RenameDirectory(NULL, sdmcArchive, dirPath, sdmcArchive, newDirPath);
+    Test("SDMC", "Renaming file", [&] {
+        return TestSDMCFileRename(sdmcArchive);
     });
     
-    // Rename File
-    TestResult("SDMC", "Renaming file", [&]{
-        // Post-dir-rename, pre-file-rename
-        FS_path newDirFilePath = FS_makePath(PATH_CHAR, "/new_dir_renamed/new_file.txt");
-        return FSUSER_RenameFile(NULL, sdmcArchive, newDirFilePath, sdmcArchive, newFilePath);
+    Test("SDMC", "Writing to file", [&] {
+        return TestSDMCFileWrite(sdmcArchive);
+    });
+    
+    Test("SDMC", "Creating and deleting directory", [&] {
+        return TestSDMCDirCreateDelete(sdmcArchive);
     });
 
-    // Delete File
-    TestResult("SDMC", "Deleting file", [&]{
-        return FSUSER_DeleteFile(NULL, sdmcArchive, newFilePath);
-    });    
-
-    // Delete Directory
-    TestResult("SDMC", "Deleting directory", [&]{
-        return FSUSER_DeleteDirectory(NULL, sdmcArchive, newDirPath);
+    Test("SDMC", "Renaming directory", [&] {
+        return TestSDMCDirRename(sdmcArchive);
     });
 
     // Close SDMC
