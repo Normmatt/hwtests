@@ -73,15 +73,17 @@ void drawFrames()
 void print(gfxScreen_t screen, const char* format, ...)
 {
     std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
+    
     va_list arguments;
-    char newStr[512];
+    char *vaStr;
 
     va_start(arguments, format);
-    vsprintf(newStr, format, arguments);
+    vasprintf(&vaStr, format, arguments);
     va_end(arguments);
 
-    textBuffer += std::string(newStr);
-    svcOutputDebugString(newStr, strlen(newStr));
+    textBuffer += std::string(vaStr);
+    svcOutputDebugString(vaStr, strlen(vaStr));
+    free(vaStr);
 
     drawFrames();
 }
