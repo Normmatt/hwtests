@@ -1,12 +1,13 @@
-#include "test_fs.h"
+#include "tests/fs_sdmc.h"
 
 #include <3ds.h>
 
-#include "test.h"
+#include "tests/test.h"
 
 namespace FS {
+namespace SDMC {
 
-static bool TestSDMCFileCreateDelete(FS_archive sdmcArchive)
+static bool TestFileCreateDelete(FS_archive sdmcArchive)
 {
     Handle fileHandle;
     const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_create_delete.txt");
@@ -28,7 +29,7 @@ static bool TestSDMCFileCreateDelete(FS_archive sdmcArchive)
     return true;
 }
 
-static bool TestSDMCFileRename(FS_archive sdmcArchive)
+static bool TestFileRename(FS_archive sdmcArchive)
 {
     Handle fileHandle;
     const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_rename.txt");
@@ -56,7 +57,7 @@ static bool TestSDMCFileRename(FS_archive sdmcArchive)
     return true;
 }
 
-static bool TestSDMCFileWrite(FS_archive sdmcArchive)
+static bool TestFileWrite(FS_archive sdmcArchive)
 {
     Handle fileHandle;
     u32 bytesWritten;
@@ -82,7 +83,7 @@ static bool TestSDMCFileWrite(FS_archive sdmcArchive)
     return true;
 }
 
-static bool TestSDMCDirCreateDelete(FS_archive sdmcArchive)
+static bool TestDirCreateDelete(FS_archive sdmcArchive)
 {
     Handle dirHandle;
     const static FS_path dirPath = FS_makePath(PATH_CHAR, "/test_dir_create_delete");
@@ -103,7 +104,7 @@ static bool TestSDMCDirCreateDelete(FS_archive sdmcArchive)
     return true;
 }
 
-static bool TestSDMCDirRename(FS_archive sdmcArchive)
+static bool TestDirRename(FS_archive sdmcArchive)
 {
     Handle dirHandle;
     const static FS_path dirPath = FS_makePath(PATH_CHAR, "/test_dir_rename");
@@ -130,7 +131,7 @@ static bool TestSDMCDirRename(FS_archive sdmcArchive)
     return true;
 }
 
-static void TestSDMC()
+void TestAll()
 {
     FS_archive sdmcArchive = (FS_archive) { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
 
@@ -140,23 +141,23 @@ static void TestSDMC()
     });
     
     Test("SDMC", "Creating and deleting file", [&] {
-        return TestSDMCFileCreateDelete(sdmcArchive);
+        return TestFileCreateDelete(sdmcArchive);
     });
     
     Test("SDMC", "Renaming file", [&] {
-        return TestSDMCFileRename(sdmcArchive);
+        return TestFileRename(sdmcArchive);
     });
     
     Test("SDMC", "Writing to file", [&] {
-        return TestSDMCFileWrite(sdmcArchive);
+        return TestFileWrite(sdmcArchive);
     });
     
     Test("SDMC", "Creating and deleting directory", [&] {
-        return TestSDMCDirCreateDelete(sdmcArchive);
+        return TestDirCreateDelete(sdmcArchive);
     });
 
     Test("SDMC", "Renaming directory", [&] {
-        return TestSDMCDirRename(sdmcArchive);
+        return TestDirRename(sdmcArchive);
     });
 
     // Close SDMC
@@ -165,18 +166,5 @@ static void TestSDMC()
     });
 }
 
-
-void TestAll()
-{
-    TestResult("FS", "Initializing service", [&]{
-        return fsInit();
-    });
-
-    TestSDMC();
-
-    TestResult("FS", "Exiting service", [&]{
-        return fsExit();
-    });
-}
-
+} // namespace
 } // namespace

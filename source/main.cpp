@@ -3,7 +3,7 @@
 #include <3ds.h>
 
 #include "output.h"
-#include "test_fs.h"
+#include "tests/fs.h"
 
 static unsigned int testCounter = 0;
 static void (*tests[]) (void) = {
