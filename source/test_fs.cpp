@@ -41,8 +41,12 @@ static bool TestSDMCFileRename(FS_archive sdmcArchive)
     SoftAssert(FSUSER_RenameFile(NULL, sdmcArchive, filePath, sdmcArchive, newFilePath) == 0);
     
     // Should fail to make sure the old file no longer exists
-    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_READ, 0) != 0);
+    if (FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_READ, 0) == 0) {
+        FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
+        return false;
+    }
     FSFILE_Close(fileHandle);
+    
     // Make sure the new file exists
     SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, newFilePath, FS_OPEN_READ, 0) == 0);
     FSFILE_Close(fileHandle);
@@ -111,8 +115,12 @@ static bool TestSDMCDirRename(FS_archive sdmcArchive)
     SoftAssert(FSUSER_RenameDirectory(NULL, sdmcArchive, dirPath, sdmcArchive, newDirPath) == 0);
     
     // Should fail to make sure the old dir no longer exists
-    SoftAssert(FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath) != 0);
+    if (FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, dirPath) == 0) {
+        FSUSER_DeleteDirectory(NULL, sdmcArchive, dirPath);
+        return false;
+    }
     FSDIR_Close(dirHandle);
+    
     // Make sure the new dir exists
     SoftAssert(FSUSER_OpenDirectory(NULL, &dirHandle, sdmcArchive, newDirPath) == 0);
     FSDIR_Close(dirHandle);
