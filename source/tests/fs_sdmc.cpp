@@ -1,5 +1,6 @@
 #include "tests/fs_sdmc.h"
 
+#include <memory>
 #include <3ds.h>
 
 #include "tests/test.h"
@@ -80,14 +81,11 @@ static bool TestFileWriteRead(FS_archive sdmcArchive)
     // Verify file size
     SoftAssert(fileSize == bytesWritten);
     
-    char* stringRead = new char[fileSize];
+    std::unique_ptr<char> stringRead(new char[fileSize]);
     // Read from file
-    SoftAssert(FSFILE_Read(fileHandle, &bytesRead, 0, stringRead, fileSize) == 0);
-    // Verify string size
-    SoftAssert(bytesRead == bytesWritten);
+    SoftAssert(FSFILE_Read(fileHandle, &bytesRead, 0, stringRead.get(), fileSize) == 0);
     // Verify string contents
-    SoftAssert(strcmp(stringRead, stringWritten) == 0);
-    delete[] stringRead;
+    SoftAssert(strcmp(stringRead.get(), stringWritten) == 0);
     
     FSFILE_Close(fileHandle);
     FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
