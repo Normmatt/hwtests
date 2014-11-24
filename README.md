@@ -2,7 +2,8 @@
 
 The beginnings of a homebrew test suite for Citra.
 
-Press A to run, press B to close.
+Use send-exec.py to run the tests over the network, without any permanent copying. 
+Press A to run, press START to close.
 
 ### Thanks to
 
