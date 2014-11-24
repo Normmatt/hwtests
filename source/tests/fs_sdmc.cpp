@@ -57,25 +57,37 @@ static bool TestFileRename(FS_archive sdmcArchive)
     return true;
 }
 
-static bool TestFileWrite(FS_archive sdmcArchive)
+static bool TestFileWriteRead(FS_archive sdmcArchive)
 {
     Handle fileHandle;
     u32 bytesWritten;
+    u32 bytesRead;
     u64 fileSize;
     
-    const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_write.txt");
+    const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_write_read.txt");
     const static char* stringWritten = "A string\n";
     
     // Create file
     FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0);
     
     // Write to file
-    SoftAssert(FSFILE_Write(fileHandle, &bytesWritten, 0, stringWritten, strlen(stringWritten), FS_WRITE_FLUSH) == 0);
+    SoftAssert(FSFILE_Write(fileHandle, &bytesWritten, 0, stringWritten, strlen(stringWritten)+1, FS_WRITE_FLUSH) == 0);
+    // Verify string size
+    SoftAssert(strlen(stringWritten)+1 == bytesWritten);
 
     // Check file size
     SoftAssert(FSFILE_GetSize(fileHandle, &fileSize) == 0);
     // Verify file size
     SoftAssert(fileSize == bytesWritten);
+    
+    char* stringRead = new char[fileSize];
+    // Read from file
+    SoftAssert(FSFILE_Read(fileHandle, &bytesRead, 0, stringRead, fileSize) == 0);
+    // Verify string size
+    SoftAssert(bytesRead == bytesWritten);
+    // Verify string contents
+    SoftAssert(strcmp(stringRead, stringWritten) == 0);
+    delete[] stringRead;
     
     FSFILE_Close(fileHandle);
     FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
@@ -148,8 +160,8 @@ void TestAll()
         return TestFileRename(sdmcArchive);
     });
     
-    Test("SDMC", "Writing to file", [&] {
-        return TestFileWrite(sdmcArchive);
+    Test("SDMC", "Writing and reading file", [&] {
+        return TestFileWriteRead(sdmcArchive);
     });
     
     Test("SDMC", "Creating and deleting directory", [&] {

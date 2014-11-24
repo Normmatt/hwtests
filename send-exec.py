@@ -16,6 +16,6 @@ MESSAGE = open("citra-hwtests.3dsx", "rb").read();
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
 s.send(MESSAGE)
-time.sleep(0.1)
+time.sleep(10)
 s.close()
 
