@@ -47,7 +47,7 @@ static void drawFrame(gfxScreen_t screen, char b, char g, char r)
     int screenWidth = (screen == GFX_TOP) ? 400 : 320;
     std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
 
-    u8* bufAdr = gfxGetFramebuffer(screen, GFX_LEFT, NULL, NULL);
+    u8* bufAdr = gfxGetFramebuffer(screen, GFX_LEFT, nullptr, nullptr);
     for (int i = 0; i < screenWidth * screenHeight * 3; i += 3) {
         bufAdr[i]   = b;
         bufAdr[i+1] = g;
@@ -59,7 +59,7 @@ static void drawFrame(gfxScreen_t screen, char b, char g, char r)
         deleteFirstLine(&textBuffer);
         lines--;
     }
-    gfxDrawText(screen, GFX_LEFT, NULL, textBuffer.c_str(), screenHeight - fontDefault.height * 3, 10);
+    gfxDrawText(screen, GFX_LEFT, nullptr, textBuffer, screenHeight - fontDefault.height * 3, 10);
 }
 
 void drawFrames()
