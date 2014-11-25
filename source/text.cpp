@@ -35,10 +35,9 @@ int drawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
     const u8 g = font->color[1];
     const u8 b = font->color[2];
 
-    int i, j;
-    for (i = 0; i < cd->w; i++) {
+    for (int i = 0; i < cd->w; i++) {
         charData += cyo;
-        for(j = 0; j < ch; j++) {
+        for (int j = 0; j < ch; j++) {
             u8 v = *(charData++);
             if (v) {
                 fb[0] = (fb[0] * (0xFF - v) + (b * v)) >> 8;
