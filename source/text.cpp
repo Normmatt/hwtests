@@ -35,10 +35,9 @@ int drawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
     const u8 g = font->color[1];
     const u8 b = font->color[2];
 
-    int i, j;
-    for (i = 0; i < cd->w; i++) {
+    for (int i = 0; i < cd->w; i++) {
         charData += cyo;
-        for(j = 0; j < ch; j++) {
+        for (int j = 0; j < ch; j++) {
             u8 v = *(charData++);
             if (v) {
                 fb[0] = (fb[0] * (0xFF - v) + (b * v)) >> 8;
@@ -53,28 +52,25 @@ int drawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
     return cd->xa;
 }
 
-void drawString(u8* fb, font_s* f, const char* str, s16 x, s16 y, u16 w, u16 h)
+void drawString(u8* fb, font_s* f, const std::string& str, s16 x, s16 y, u16 w, u16 h)
 {
-    if (!f || !fb || !str)
+    if (!f || !fb)
         return;
 
-    int k, dx = 0, dy = 0;
-    int length = strlen(str);
-    for (k = 0; k < length; k++)
+    int dx = 0, dy = 0;
+    for (const char& c : str)
     {
-        dx += drawCharacter(fb, f, str[k], x + dx, y + dy, w, h);
-        if(str[k]=='\n') {
+        dx += drawCharacter(fb, f, c, x + dx, y + dy, w, h);
+        if (c == '\n') {
             dx = 0;
             dy -= f->height;
         }
     }
 }
 
-void gfxDrawText(gfxScreen_t screen, gfx3dSide_t side, font_s* font, const char* str, s16 x, s16 y)
+void gfxDrawText(gfxScreen_t screen, gfx3dSide_t side, font_s* font, const std::string& str, s16 x, s16 y)
 {
-    if(!str)
-        return;
-    if(!font)
+    if (!font)
         font = &fontDefault;
 
     u16 fbWidth, fbHeight;
