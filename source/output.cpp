@@ -1,5 +1,6 @@
 #include "output.h"
 
+#include <algorithm>
 #include <string>
 #include <cstring>
 #include <cmath>
@@ -18,12 +19,7 @@ static int countLines(const std::string& str)
     if (str.empty())
         return 0;
 
-    int cnt = 1;
-    for (const char& c : str) {
-        if (c == '\n') cnt++;
-    }
-    
-    return cnt;
+    return 1 + std::count_if(str.begin(), str.end(), [](char c) { return c == '\n'; });
 }
 
 static void deleteFirstLine(std::string* str)
