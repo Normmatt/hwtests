@@ -1,9 +1,8 @@
-#include "tests/fs_sdmc.h"
-
 #include <3ds.h>
 
-#include "tests/fs.h"
 #include "tests/test.h"
+#include "tests/fs/fs.h"
+#include "tests/fs/fs_sdmc.h"
 
 namespace FS {
 
