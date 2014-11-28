@@ -1,19 +1,34 @@
 #pragma once
 
-struct charDesc_s {
+struct Glyph {
+    // Glyph representation
     char c;
-    int x, y, w, h, xo, yo, xa;
+
+    // x and y origin of the character.
+    int x, y;
+
+    // width and height in pixels.
+    int w, h;
+
+    // x and y offset
+    int xo, yo;
+
+    // Pixels after this character to begin
+    // drawing the next one.
+    int xa;
+
+    // Glyph data.
     u8* data;
 };
 
 struct font_s {
     u8* data;
-    charDesc_s* desc;
+    Glyph* desc;
     u8 height;
     u8 color[3];
 };
 
 extern u8 font1Data[];
-extern charDesc_s font1Desc[];
+extern Glyph font1Desc[];
 
 extern font_s fontDefault;

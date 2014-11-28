@@ -9,7 +9,7 @@
 //this code is not meant to be readable
 int drawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
 {
-    charDesc_s* cd = &font->desc[(int)c];
+    Glyph* cd = &font->desc[(int)c];
 
     if (!cd->data)
         return 0;
