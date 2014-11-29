@@ -1,4 +1,5 @@
 #include <memory>
+#include <cstring>
 #include <3ds.h>
 
 #include "tests/test.h"
