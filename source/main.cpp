@@ -4,10 +4,12 @@
 
 #include "output.h"
 #include "tests/fs/fs.h"
+#include "tests/cpu/cputests.h"
 
 static unsigned int testCounter = 0;
 static void (*tests[]) (void) = {
-    FS::TestAll
+    FS::TestAll,
+    CPU::Integer::TestAll
 };
 
 int main()
