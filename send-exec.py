@@ -11,7 +11,7 @@ import time
  
 TCP_IP = '192.168.xx.xx'
 TCP_PORT = 9000
-MESSAGE = open("citra-hwtests.3dsx", "rb").read();
+MESSAGE = open("hwtests.3dsx", "rb").read();
  
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
