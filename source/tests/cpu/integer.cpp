@@ -11,6 +11,7 @@ static bool Add() {
     unsigned int output = 0;
     unsigned int rm = 0;
     unsigned int rn = 0;
+    unsigned int badflags = 0;
 
     // Generic addition
     asm volatile ("LDR r0, =420\n"
@@ -26,7 +27,24 @@ static bool Add() {
     if (output != 0)
         return false;
 
-    // TODO: ADC, ADCS, ADDW, and ADDS variants.
+    // ADDS
+    badflags = 0;
+    rm = std::numeric_limits<unsigned int>::max() - 1;
+    rn = 1;
+    asm volatile ("ADDS  %[Rm], %[Rm], %[Rn]\n"
+                  "ORRCS %[out], %[out], #1\n"
+                  "ORRPL %[out], %[out], #2\n"
+                  "ORRVS %[out], %[out], #4\n"
+                  "ORREQ %[out], %[out], #8\n"
+                  "ADDS  %[Rm], %[Rm], %[Rn]\n"
+                  "ORRCC %[out], %[out], #1\n"
+                  "ORRMI %[out], %[out], #2\n"
+                  "ORRVS %[out], %[out], #4\n"
+                  "ORRNE %[out], %[out], #8" : [out] "+r"(badflags), [Rm] "+r"(rm) : [Rn] "r"(rn));
+    if (badflags != 0)
+        return false; 
+
+    // TODO: ADC, ADCS, ADDW variants.
 
     return true;
 }
