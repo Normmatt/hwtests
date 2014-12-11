@@ -1,8 +1,9 @@
 #pragma once
 
 #include <3ds.h>
+#include <string>
 
-void drawFrames();
-void print(gfxScreen_t screen, const char* format, ...);
-void clearScreen(gfxScreen_t screen);
-void clearScreens();
+void DrawFrames();
+void Print(gfxScreen_t screen, const std::string& text);
+void ClearScreen(gfxScreen_t screen);
+void ClearScreens();

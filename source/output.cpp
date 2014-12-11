@@ -1,98 +1,69 @@
 #include "output.h"
 
-#include <algorithm>
-#include <string>
-#include <cstring>
 #include <cmath>
-#include <cstdarg>
-#include <cstdio>
 
 #include <3ds.h>
 
 #include "text.h"
+#include "common/string_funcs.h"
 
-static std::string bufferTop;
-static std::string bufferBottom;
+static std::string buffer_top;
+static std::string buffer_bottom;
 
-static int countLines(const std::string& str)
+static std::string& GetTextBuffer(gfxScreen_t screen)
 {
-    if (str.empty())
-        return 0;
-
-    return 1 + std::count_if(str.begin(), str.end(), [](char c) { return c == '\n'; });
+    switch (screen) {
+        case GFX_TOP:    return buffer_top;
+        case GFX_BOTTOM: return buffer_bottom;
+    }
+    return buffer_top;
 }
 
-static void deleteFirstLine(std::string* str)
+static void DrawFrame(gfxScreen_t screen, char b, char g, char r)
 {
-    if (str->empty())
-        return;
-    
-    size_t linebreak = str->find_first_of('\n');
-    
-    if (linebreak == std::string::npos || linebreak + 1 > str->length()) {
-        *str = {};
-        return;
-    }
-    
-    *str = str->substr(linebreak + 1);
-}
+    int screen_height = 240;
+    int screen_width = (screen == GFX_TOP) ? 400 : 320;
+    std::string& text_buffer = GetTextBuffer(screen);
 
-static void drawFrame(gfxScreen_t screen, char b, char g, char r)
-{
-    int screenHeight = 240;
-    int screenWidth = (screen == GFX_TOP) ? 400 : 320;
-    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
-
-    u8* bufAdr = gfxGetFramebuffer(screen, GFX_LEFT, nullptr, nullptr);
-    for (int i = 0; i < screenWidth * screenHeight * 3; i += 3) {
-        bufAdr[i]   = b;
-        bufAdr[i+1] = g;
-        bufAdr[i+2] = r;
+    u8* fb_addr = gfxGetFramebuffer(screen, GFX_LEFT, nullptr, nullptr);
+    for (int i = 0; i < screen_width * screen_height * 3; i += 3) {
+        fb_addr[i]   = b;
+        fb_addr[i+1] = g;
+        fb_addr[i+2] = r;
     }
 
-    int lines = countLines(textBuffer);
-    while (lines > (screenHeight / fontDefault.height - 3)) {
-        deleteFirstLine(&textBuffer);
+    int lines = Common::CountLines(text_buffer);
+    while (lines > (screen_height / fontDefault.height - 3)) {
+        Common::DeleteFirstLine(&text_buffer);
         lines--;
     }
-    gfxDrawText(screen, GFX_LEFT, nullptr, textBuffer, screenHeight - fontDefault.height * 3, 10);
+    gfxDrawText(screen, GFX_LEFT, nullptr, text_buffer, screen_height - fontDefault.height * 3, 10);
 }
 
-void drawFrames()
+void DrawFrames()
 {
-    drawFrame(GFX_TOP, 0x88, 0x66, 0x00);
-    drawFrame(GFX_BOTTOM, 0x00, 0x00, 0x00);
+    DrawFrame(GFX_TOP, 0x88, 0x66, 0x00);
+    DrawFrame(GFX_BOTTOM, 0x00, 0x00, 0x00);
     gfxFlushBuffers();
     gfxSwapBuffers();
 }
 
-void print(gfxScreen_t screen, const char* format, ...)
+void Print(gfxScreen_t screen, const std::string& text)
 {
-    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
-    
-    va_list arguments;
-    char *vaStr;
+    GetTextBuffer(screen) += text;
+    svcOutputDebugString(text.c_str(), text.length());
 
-    va_start(arguments, format);
-    vasprintf(&vaStr, format, arguments);
-    va_end(arguments);
-
-    textBuffer += std::string(vaStr);
-    svcOutputDebugString(vaStr, strlen(vaStr));
-    free(vaStr);
-
-    drawFrames();
+    DrawFrames();
 }
 
-void clearScreen(gfxScreen_t screen)
+void ClearScreen(gfxScreen_t screen)
 {
-    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
-    textBuffer.clear();
-    drawFrames();
+    GetTextBuffer(screen).clear();
+    DrawFrames();
 }
 
-void clearScreens()
+void ClearScreens()
 {
-    clearScreen(GFX_TOP);
-    clearScreen(GFX_BOTTOM);
+    ClearScreen(GFX_TOP);
+    ClearScreen(GFX_BOTTOM);
 }

@@ -1,14 +1,16 @@
 #pragma once
 
-#include <functional>
+#include <string>
+
+typedef void (*TestCaller)(void);
 
 // If the condition fails, return false
 #define SoftAssert(cond) do { if (!(cond)) { return false; } } while (0)
 
-void PrintSuccess(std::string group, std::string name, bool val);
+void PrintSuccess(const std::string& group, const std::string& name, bool val);
 
 template <typename T>
-bool Test(std::string group, std::string name, T result, T expected)
+bool Test(const std::string& group, const std::string& name, T result, T expected)
 {
     PrintSuccess(group, name, result == expected);
     return result == expected;
