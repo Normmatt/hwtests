@@ -8,15 +8,11 @@ namespace FS {
 
 void TestAll()
 {
-    TestResult("FS", "Initializing service", [&]{
-        return fsInit();
-    });
+    Test("FS", "Initializing service", fsInit(), 0L);
 
     SDMC::TestAll();
 
-    TestResult("FS", "Exiting service", [&]{
-        return fsExit();
-    });
+    Test("FS", "Exiting service", fsExit(), 0L);
 }
 
 } // namespace
