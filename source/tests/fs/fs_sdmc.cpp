@@ -2,7 +2,7 @@
 #include <cstring>
 #include <3ds.h>
 
-#include "scope_exit.h"
+#include "common/scope_exit.h"
 #include "tests/test.h"
 #include "tests/fs/fs_sdmc.h"
 
