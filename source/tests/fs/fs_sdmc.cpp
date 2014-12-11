@@ -70,6 +70,10 @@ static bool TestFileWriteRead(FS_archive sdmcArchive)
     
     // Create file
     FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0);
+    SCOPE_EXIT({ // Close and delete file no matter what happens
+        FSFILE_Close(fileHandle);
+        FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
+    });
     
     // Write to file
     SoftAssert(FSFILE_Write(fileHandle, &bytesWritten, 0, stringWritten, strlen(stringWritten)+1, FS_WRITE_FLUSH) == 0);
@@ -86,9 +90,6 @@ static bool TestFileWriteRead(FS_archive sdmcArchive)
     SoftAssert(FSFILE_Read(fileHandle, &bytesRead, 0, stringRead.get(), fileSize) == 0);
     // Verify string contents
     SoftAssert(strcmp(stringRead.get(), stringWritten) == 0);
-    
-    FSFILE_Close(fileHandle);
-    FSUSER_DeleteFile(NULL, sdmcArchive, filePath);
     
     return true;
 }
