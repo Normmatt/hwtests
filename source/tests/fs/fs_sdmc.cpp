@@ -2,6 +2,7 @@
 #include <cstring>
 #include <3ds.h>
 
+#include "scope_exit.h"
 #include "tests/test.h"
 #include "tests/fs/fs_sdmc.h"
 
@@ -10,10 +11,11 @@ namespace SDMC {
 
 static bool TestFileCreateDelete(FS_archive sdmcArchive)
 {
-    Handle fileHandle;
+    Handle fileHandle, fileHandle2;
     const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_create_delete.txt");
+    const static FS_path filePath2 = FS_makePath(PATH_CHAR, "/test_file_create_2.txt");
     
-    // Create file (not interested in opening the handle)
+    // Create file with OpenFile (not interested in opening the handle)
     SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0) == 0);
     FSFILE_Close(fileHandle);
     
@@ -26,6 +28,19 @@ static bool TestFileCreateDelete(FS_archive sdmcArchive)
     // Should fail to make sure the file no longer exists
     SoftAssert(FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_READ, 0) != 0);
     FSFILE_Close(fileHandle);
+    
+    // Create file with CreateFile
+    SoftAssert(FSUSER_CreateFile(NULL, sdmcArchive, filePath2, 0) == 0);
+    SCOPE_EXIT({
+        FSFILE_Close(fileHandle2);
+        FSUSER_DeleteFile(NULL, sdmcArchive, filePath2);
+    });
+    
+    // Make sure the new file exists
+    SoftAssert(FSUSER_OpenFile(NULL, &fileHandle2, sdmcArchive, filePath2, FS_OPEN_READ, 0) == 0);
+    
+    // Try and create a file over an already-existing file (Should fail)
+    SoftAssert(FSUSER_CreateFile(NULL, sdmcArchive, filePath2, 0) != 0);
 
     return true;
 }
@@ -36,9 +51,8 @@ static bool TestFileRename(FS_archive sdmcArchive)
     const static FS_path filePath = FS_makePath(PATH_CHAR, "/test_file_rename.txt");
     const static FS_path newFilePath = FS_makePath(PATH_CHAR, "/test_file_rename_new.txt");
     
-    // Create file (not interested in opening the handle)
-    FSUSER_OpenFile(NULL, &fileHandle, sdmcArchive, filePath, FS_OPEN_CREATE | FS_OPEN_WRITE, 0);
-    FSFILE_Close(fileHandle);
+    // Create file
+    FSUSER_CreateFile(NULL, sdmcArchive, filePath, 0);
     
     SoftAssert(FSUSER_RenameFile(NULL, sdmcArchive, filePath, sdmcArchive, newFilePath) == 0);
     
