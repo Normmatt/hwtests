@@ -111,11 +111,11 @@ static bool Ssax() {
 void TestAll() {
     const std::string tag = "Integer";
 
-    Test(tag, "ADD", &Add);
-    Test(tag, "SUB", &Sub);
-    Test(tag, "MUL", &Mul);
-    Test(tag, "SASX", &Sasx);
-    Test(tag, "SSAX", &Ssax);
+    Test(tag, "ADD", Add(), true);
+    Test(tag, "SUB", Sub(), true);
+    Test(tag, "MUL", Mul(), true);
+    Test(tag, "SASX", Sasx(), true);
+    Test(tag, "SSAX", Ssax(), true);
 }
 
 }

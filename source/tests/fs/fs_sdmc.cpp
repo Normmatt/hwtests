@@ -145,35 +145,13 @@ void TestAll()
 {
     FS_archive sdmcArchive = (FS_archive) { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
 
-    // Open SDMC
-    TestResult("SDMC", "Opening archive", [&]{
-        return FSUSER_OpenArchive(NULL, &sdmcArchive);
-    });
-    
-    Test("SDMC", "Creating and deleting file", [&] {
-        return TestFileCreateDelete(sdmcArchive);
-    });
-    
-    Test("SDMC", "Renaming file", [&] {
-        return TestFileRename(sdmcArchive);
-    });
-    
-    Test("SDMC", "Writing and reading file", [&] {
-        return TestFileWriteRead(sdmcArchive);
-    });
-    
-    Test("SDMC", "Creating and deleting directory", [&] {
-        return TestDirCreateDelete(sdmcArchive);
-    });
-
-    Test("SDMC", "Renaming directory", [&] {
-        return TestDirRename(sdmcArchive);
-    });
-
-    // Close SDMC
-    TestResult("SDMC", "Closing archive", [&]{
-        return FSUSER_CloseArchive(NULL, &sdmcArchive);
-    });
+    Test("SDMC", "Opening archive", FSUSER_OpenArchive(NULL, &sdmcArchive), 0L);
+    Test("SDMC", "Creating and deleting file", TestFileCreateDelete(sdmcArchive), true);
+    Test("SDMC", "Renaming file", TestFileRename(sdmcArchive), true);
+    Test("SDMC", "Writing and reading file", TestFileWriteRead(sdmcArchive), true);
+    Test("SDMC", "Creating and deleting directory", TestDirCreateDelete(sdmcArchive), true);
+    Test("SDMC", "Renaming directory", TestDirRename(sdmcArchive), true);
+    Test("SDMC", "Closing archive", FSUSER_CloseArchive(NULL, &sdmcArchive), 0L);
 }
 
 } // namespace

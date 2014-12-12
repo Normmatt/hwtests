@@ -5,6 +5,11 @@
 // If the condition fails, return false
 #define SoftAssert(cond) do { if (!(cond)) { return false; } } while (0)
 
-void Test(std::string group, std::string name, std::function<bool (void)> test);
+void PrintSuccess(std::string group, std::string name, bool val);
 
-void TestResult(std::string group, std::string name, std::function<int (void)> test);
+template <typename T>
+bool Test(std::string group, std::string name, T result, T expected)
+{
+    PrintSuccess(group, name, result == expected);
+    return result == expected;
+}
