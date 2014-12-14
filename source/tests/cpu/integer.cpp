@@ -116,13 +116,13 @@ static bool Uqsub8() {
 
     // Regular subtraction
     asm volatile ("UQSUB8 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
-    SoftAssert(output != 20);
+    SoftAssert(output == 20);
 
     // Floor subtraction (50 - 70) == 0 with UQSUB8 (or any of the other UQSUB variants).
     rm = 50;
     rn = 70;
     asm volatile ("UQSUB8 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
-    SoftAssert(output != 0);
+    SoftAssert(output == 0);
 
     return true;
 }
