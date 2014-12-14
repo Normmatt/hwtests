@@ -108,6 +108,25 @@ static bool Ssax() {
     return (output == 262209534);
 }
 
+// UQSUB8
+static bool Uqsub8() {
+    unsigned int output;
+    unsigned int rm = 70;
+    unsigned int rn = 50;
+
+    // Regular subtraction
+    asm volatile ("UQSUB8 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output != 20);
+
+    // Floor subtraction (50 - 70) == 0 with UQSUB8 (or any of the other UQSUB variants).
+    rm = 50;
+    rn = 70;
+    asm volatile ("UQSUB8 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output != 0);
+
+    return true;
+}
+
 void TestAll() {
     const std::string tag = "Integer";
 
@@ -116,6 +135,7 @@ void TestAll() {
     Test(tag, "MUL", Mul(), true);
     Test(tag, "SASX", Sasx(), true);
     Test(tag, "SSAX", Ssax(), true);
+    Test(tag, "UQSUB8", Uqsub8(), true);
 }
 
 }
