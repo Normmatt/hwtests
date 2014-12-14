@@ -5,7 +5,13 @@
 #include "output.h"
 #include "common/string_funcs.h"
 
+void SoftAssertLog(const std::string& function, int line, const std::string& condition)
+{
+    LogToFile(Common::FormatString("SOFTASSERT FAILURE: `%s`\n", condition.c_str()));
+    LogToFile(Common::FormatString("    At `%s` L%i\n", function.c_str(), line));
+}
+
 void PrintSuccess(const std::string& group, const std::string& name, bool val)
 {
-    Print(GFX_TOP, Common::FormatString("%s: %s - %s\n", group.c_str(), name.c_str(), val ? "SUCCESS" : "FAILURE"));
+    Log(GFX_TOP, Common::FormatString("%s: [%s] %s\n", val ? "SUCCESS" : "FAILURE", group.c_str(), name.c_str()));
 }

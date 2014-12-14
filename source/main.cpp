@@ -19,18 +19,19 @@ int main(int argc, char** argv)
     gfxInit();
     gfxSet3D(false);
     fsInit();
+    InitOutput();
 
     ClearScreens();
     Print(GFX_TOP, "Press A to begin...\n");
 
     while (aptMainLoop()) {
-        DrawFrames();
+        DrawBuffers();
 
         hidScanInput();
         if (hidKeysDown() & KEY_START) {
             break;
         } else if (hidKeysDown() & KEY_A) {
-            ClearScreen(GFX_TOP);
+            ClearScreens();
 
             if (test_counter < (sizeof(tests) / sizeof(tests[0]))) {
                 tests[test_counter]();
@@ -39,7 +40,7 @@ int main(int argc, char** argv)
                 break;
             }
 
-            Print(GFX_TOP, "\n");
+            Log(GFX_TOP, "\n");
             Print(GFX_TOP, "Press A to continue...\n");
         }
 
@@ -47,6 +48,8 @@ int main(int argc, char** argv)
     }
 
     ClearScreens();
+    
+    DeinitOutput();
     fsExit();
     gfxExit();
     hidExit();

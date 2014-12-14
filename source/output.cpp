@@ -1,11 +1,14 @@
+#include <3ds.h>
+
 #include "output.h"
 
 #include <cmath>
+#include <fstream>
 
-#include <3ds.h>
-
-#include "text.h"
+#include "draw.h"
 #include "common/string_funcs.h"
+
+static FILE* log_file;
 
 static std::string buffer_top;
 static std::string buffer_bottom;
@@ -19,51 +22,71 @@ static std::string& GetTextBuffer(gfxScreen_t screen)
     return buffer_top;
 }
 
-static void DrawFrame(gfxScreen_t screen, char b, char g, char r)
+static void DrawBuffer(gfxScreen_t screen)
 {
-    int screen_height = 240;
-    int screen_width = (screen == GFX_TOP) ? 400 : 320;
+    Rect screen_size = GetScreenSize(screen);
     std::string& text_buffer = GetTextBuffer(screen);
 
-    u8* fb_addr = gfxGetFramebuffer(screen, GFX_LEFT, nullptr, nullptr);
-    for (int i = 0; i < screen_width * screen_height * 3; i += 3) {
-        fb_addr[i]   = b;
-        fb_addr[i+1] = g;
-        fb_addr[i+2] = r;
-    }
-
     int lines = Common::CountLines(text_buffer);
-    while (lines > (screen_height / fontDefault.height - 3)) {
+    while (lines > (screen_size.h / fontDefault.height - 3)) {
         Common::DeleteFirstLine(&text_buffer);
         lines--;
     }
-    gfxDrawText(screen, GFX_LEFT, nullptr, text_buffer, screen_height - fontDefault.height * 3, 10);
+    DrawText(screen, GFX_LEFT, nullptr, text_buffer, screen_size.h - fontDefault.height * 3, 10);
 }
 
-void DrawFrames()
+void InitOutput()
 {
-    DrawFrame(GFX_TOP, 0x88, 0x66, 0x00);
-    DrawFrame(GFX_BOTTOM, 0x00, 0x00, 0x00);
+    sdmcInit();
+    log_file = fopen("hwtest_log.txt", "w");
+}
+
+void DrawBuffers()
+{
+    FillScreen(GFX_TOP, 0x00, 0x66, 0x88);
+    DrawBuffer(GFX_TOP);
+    
+    FillScreen(GFX_BOTTOM, 0x00, 0x00, 0x00);
+    DrawBuffer(GFX_BOTTOM);
+    
     gfxFlushBuffers();
     gfxSwapBuffers();
+}
+
+void ClearScreen(gfxScreen_t screen, u8 bg_r, u8 bg_g, u8 bg_b)
+{
+    FillScreen(screen, bg_r, bg_g, bg_b);
+    GetTextBuffer(screen).clear();
+    gfxFlushBuffers();
+    gfxSwapBuffers();
+}
+
+void ClearScreens()
+{
+    ClearScreen(GFX_TOP, 0x00, 0x66, 0x88);
+    ClearScreen(GFX_BOTTOM, 0x00, 0x00, 0x00);
 }
 
 void Print(gfxScreen_t screen, const std::string& text)
 {
     GetTextBuffer(screen) += text;
+    DrawBuffers();
+}
+
+void Log(gfxScreen_t screen, const std::string& text)
+{
+    Print(screen, text);
+    LogToFile(text);
+}
+
+void LogToFile(const std::string& text)
+{
     svcOutputDebugString(text.c_str(), text.length());
-
-    DrawFrames();
+    fprintf(log_file, "%s", text.c_str());
 }
 
-void ClearScreen(gfxScreen_t screen)
+void DeinitOutput()
 {
-    GetTextBuffer(screen).clear();
-    DrawFrames();
-}
-
-void ClearScreens()
-{
-    ClearScreen(GFX_TOP);
-    ClearScreen(GFX_BOTTOM);
+    fclose(log_file);
+    sdmcExit();
 }

@@ -1,13 +1,20 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "draw.h"
+
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+
 #include <3ds.h>
-#include "text.h"
 
 #include "font.h"
 
-//this code is not meant to be readable
-int drawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
+Rect GetScreenSize(gfxScreen_t screen)
+{
+    return { (screen == GFX_TOP) ? 400 : 320, 240 };
+}
+
+// This code is not meant to be readable -- Smea
+int DrawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
 {
     Glyph* cd = &font->desc[(int)c];
 
@@ -52,7 +59,7 @@ int drawCharacter(u8* fb, font_s* font, char c, s16 x, s16 y, u16 w, u16 h)
     return cd->xa;
 }
 
-void drawString(u8* fb, font_s* f, const std::string& str, s16 x, s16 y, u16 w, u16 h)
+void DrawString(u8* fb, font_s* f, const std::string& str, s16 x, s16 y, u16 w, u16 h)
 {
     if (!f || !fb)
         return;
@@ -60,7 +67,7 @@ void drawString(u8* fb, font_s* f, const std::string& str, s16 x, s16 y, u16 w, 
     int dx = 0, dy = 0;
     for (const char& c : str)
     {
-        dx += drawCharacter(fb, f, c, x + dx, y + dy, w, h);
+        dx += DrawCharacter(fb, f, c, x + dx, y + dy, w, h);
         if (c == '\n') {
             dx = 0;
             dy -= f->height;
@@ -68,7 +75,7 @@ void drawString(u8* fb, font_s* f, const std::string& str, s16 x, s16 y, u16 w, 
     }
 }
 
-void gfxDrawText(gfxScreen_t screen, gfx3dSide_t side, font_s* font, const std::string& str, s16 x, s16 y)
+void DrawText(gfxScreen_t screen, gfx3dSide_t side, font_s* font, const std::string& str, s16 x, s16 y)
 {
     if (!font)
         font = &fontDefault;
@@ -76,5 +83,16 @@ void gfxDrawText(gfxScreen_t screen, gfx3dSide_t side, font_s* font, const std::
     u16 fbWidth, fbHeight;
     u8* fbAdr = gfxGetFramebuffer(screen, side, &fbWidth, &fbHeight);
 
-    drawString(fbAdr, font, str, y, x, fbHeight, fbWidth);
+    DrawString(fbAdr, font, str, y, x, fbHeight, fbWidth);
+}
+
+void FillScreen(gfxScreen_t screen, u8 bg_r, u8 bg_g, u8 bg_b)
+{
+    Rect screen_size = GetScreenSize(screen);
+    u8* fb_addr = gfxGetFramebuffer(screen, GFX_LEFT, nullptr, nullptr);
+    for (int i = 0; i < screen_size.w * screen_size.h * 3; i += 3) {
+        fb_addr[i]   = bg_b;
+        fb_addr[i+1] = bg_g;
+        fb_addr[i+2] = bg_r;
+    }
 }
