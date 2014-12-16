@@ -127,6 +127,31 @@ static bool Uqsub8() {
     return true;
 }
 
+// UXTAB16
+static bool Uxtab16() {
+    unsigned int output;
+    unsigned int rm = std::numeric_limits<unsigned int>::max();
+    unsigned int rn = std::numeric_limits<int>::max();
+
+    // No rotation
+    asm volatile ("UXTAB16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 16646398);
+
+    // ROR by 8
+    asm volatile ("UXTAB16 %[out], %[Rm], %[Rn], ROR #8" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 8257790);
+
+    // ROR by 16
+    asm volatile ("UXTAB16 %[out], %[Rm], %[Rn], ROR #16" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 16646398);
+
+    // ROR by 24
+    asm volatile ("UXTAB16 %[out], %[Rm], %[Rn], ROR #24" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 16646270);
+
+    return true;
+}
+
 // UXTB16
 static bool Uxtb16() {
     unsigned int output = 50;
@@ -163,6 +188,7 @@ void TestAll() {
     Test(tag, "SASX", Sasx(), true);
     Test(tag, "SSAX", Ssax(), true);
     Test(tag, "UQSUB8", Uqsub8(), true);
+    Test(tag, "UXTAB16", Uxtab16(), true);
     Test(tag, "UXTB16", Uxtb16(), true);
 }
 
