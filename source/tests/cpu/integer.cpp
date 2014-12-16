@@ -127,6 +127,33 @@ static bool Uqsub8() {
     return true;
 }
 
+// UXTB16
+static bool Uxtb16() {
+    unsigned int output = 50;
+
+    // No rotation
+    asm volatile ("UXTB16 %[out], %[out]" : [out] "+r"(output));
+    SoftAssert(output == 50);
+
+    // ROR by 8
+    output = (1 << 16) - 1;
+    asm volatile ("UXTB16 %[out], %[out], ROR #8" : [out] "+r"(output));
+    SoftAssert(output == 0xFF);
+
+    // ROR by 16
+    output = (1 << 24) - 1;
+    asm volatile ("UXTB16 %[out], %[out], ROR #16" : [out] "+r"(output));
+    SoftAssert(output == 0xFF00FF);
+
+    // ROR by 24
+    output = (1 << 24) - 1;
+    output /= 2;
+    asm volatile ("UXTB16 %[out], %[out], ROR #24" : [out] "+r"(output));
+    SoftAssert(output == 0xFF0000);
+
+    return true;
+}
+
 void TestAll() {
     const std::string tag = "Integer";
 
@@ -136,6 +163,7 @@ void TestAll() {
     Test(tag, "SASX", Sasx(), true);
     Test(tag, "SSAX", Ssax(), true);
     Test(tag, "UQSUB8", Uqsub8(), true);
+    Test(tag, "UXTB16", Uxtb16(), true);
 }
 
 }
