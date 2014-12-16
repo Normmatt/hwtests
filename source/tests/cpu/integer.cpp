@@ -1,6 +1,7 @@
 #include <limits>
 #include <string>
 #include "output.h"
+#include "common/string_funcs.h"
 #include "tests/test.h"
 
 namespace CPU {
@@ -86,6 +87,56 @@ static bool Mul() {
     return true;
 }
 
+// QADD16
+static bool Qadd16()
+{
+    int output = 0;
+    int rm = std::numeric_limits<short>::min();
+    int rn = std::numeric_limits<short>::min();
+
+    // rm and rn == SHORT_MIN
+    asm volatile ("QADD16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == -98304);
+
+    // rm and rn == SHORT_MAX
+    rm = std::numeric_limits<short>::max();
+    rn = std::numeric_limits<short>::max();
+    asm volatile ("QADD16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == std::numeric_limits<short>::max());
+
+    // rm == SHORT_MAX | rn == SHORT_MIN
+    rn = std::numeric_limits<short>::min();
+    asm volatile ("QADD16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == -1);
+
+    return true;
+}
+
+// QSUB16
+static bool Qsub16()
+{
+    int output = 0;
+    int rm = std::numeric_limits<short>::min();
+    int rn = std::numeric_limits<short>::min();
+
+    // rm and rn == SHORT_MIN
+    asm volatile ("QSUB16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 0);
+
+    // rm and rn == SHORT_MAX
+    rm = std::numeric_limits<short>::max();
+    rn = std::numeric_limits<short>::max();
+    asm volatile ("QSUB16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 0);
+
+    // rm == SHORT_MAX | rn == SHORT_MIN
+    rn = std::numeric_limits<short>::min();
+    asm volatile ("QSUB16 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 98303);
+
+    return true;
+}
+
 // SASX
 static bool Sasx() {
     unsigned int output;
@@ -160,6 +211,8 @@ void TestAll() {
     Test(tag, "ADD", Add(), true);
     Test(tag, "SUB", Sub(), true);
     Test(tag, "MUL", Mul(), true);
+    Test(tag, "QADD16", Qadd16(), true);
+    Test(tag, "QSUB16", Qsub16(), true);
     Test(tag, "SASX", Sasx(), true);
     Test(tag, "SSAX", Ssax(), true);
     Test(tag, "UQSUB8", Uqsub8(), true);
