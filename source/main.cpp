@@ -1,52 +1,56 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <3ds.h>
 
 #include "output.h"
+#include "tests/test.h"
 #include "tests/fs/fs.h"
 #include "tests/cpu/cputests.h"
 
-static unsigned int testCounter = 0;
-static void (*tests[]) (void) = {
+static unsigned int test_counter = 0;
+static TestCaller tests[] = {
     FS::TestAll,
     CPU::Integer::TestAll
 };
 
-int main()
+int main(int argc, char** argv)
 {
     srvInit();
     aptInit();
     hidInit(NULL);
     gfxInit();
     gfxSet3D(false);
+    fsInit();
+    InitOutput();
 
-    clearScreens();
-    print(GFX_TOP, "Press A to begin...\n");
+    ClearScreens();
+    Print(GFX_TOP, "Press A to begin...\n");
 
     while (aptMainLoop()) {
-        drawFrames();
+        DrawBuffers();
 
         hidScanInput();
         if (hidKeysDown() & KEY_START) {
             break;
         } else if (hidKeysDown() & KEY_A) {
-            clearScreen(GFX_TOP);
+            ClearScreens();
 
-            if (testCounter < (sizeof(tests) / sizeof(tests[0]))) {
-                tests[testCounter]();
-                testCounter++;
+            if (test_counter < (sizeof(tests) / sizeof(tests[0]))) {
+                tests[test_counter]();
+                test_counter++;
             } else {
                 break;
             }
 
-            print(GFX_TOP, "\n");
-            print(GFX_TOP, "Press A to continue...\n");
+            Log(GFX_TOP, "\n");
+            Print(GFX_TOP, "Press A to continue...\n");
         }
 
         gspWaitForEvent(GSPEVENT_VBlank0, false);
     }
 
-    clearScreens();
+    ClearScreens();
+    
+    DeinitOutput();
+    fsExit();
     gfxExit();
     hidExit();
     aptExit();

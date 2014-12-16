@@ -1,98 +1,92 @@
-#include "output.h"
-
-#include <algorithm>
-#include <string>
-#include <cstring>
-#include <cmath>
-#include <cstdarg>
-#include <cstdio>
-
 #include <3ds.h>
 
-#include "text.h"
+#include "output.h"
 
-static std::string bufferTop;
-static std::string bufferBottom;
+#include <cmath>
+#include <fstream>
 
-static int countLines(const std::string& str)
+#include "draw.h"
+#include "common/string_funcs.h"
+
+static FILE* log_file;
+
+static std::string buffer_top;
+static std::string buffer_bottom;
+
+static std::string& GetTextBuffer(gfxScreen_t screen)
 {
-    if (str.empty())
-        return 0;
-
-    return 1 + std::count_if(str.begin(), str.end(), [](char c) { return c == '\n'; });
+    switch (screen) {
+        case GFX_TOP:    return buffer_top;
+        case GFX_BOTTOM: return buffer_bottom;
+    }
+    return buffer_top;
 }
 
-static void deleteFirstLine(std::string* str)
+static void DrawBuffer(gfxScreen_t screen)
 {
-    if (str->empty())
-        return;
-    
-    size_t linebreak = str->find_first_of('\n');
-    
-    if (linebreak == std::string::npos || linebreak + 1 > str->length()) {
-        *str = {};
-        return;
-    }
-    
-    *str = str->substr(linebreak + 1);
-}
+    Rect screen_size = GetScreenSize(screen);
+    std::string& text_buffer = GetTextBuffer(screen);
 
-static void drawFrame(gfxScreen_t screen, char b, char g, char r)
-{
-    int screenHeight = 240;
-    int screenWidth = (screen == GFX_TOP) ? 400 : 320;
-    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
-
-    u8* bufAdr = gfxGetFramebuffer(screen, GFX_LEFT, nullptr, nullptr);
-    for (int i = 0; i < screenWidth * screenHeight * 3; i += 3) {
-        bufAdr[i]   = b;
-        bufAdr[i+1] = g;
-        bufAdr[i+2] = r;
-    }
-
-    int lines = countLines(textBuffer);
-    while (lines > (screenHeight / fontDefault.height - 3)) {
-        deleteFirstLine(&textBuffer);
+    int lines = Common::CountLines(text_buffer);
+    while (lines > (screen_size.h / fontDefault.height - 3)) {
+        Common::DeleteFirstLine(&text_buffer);
         lines--;
     }
-    gfxDrawText(screen, GFX_LEFT, nullptr, textBuffer, screenHeight - fontDefault.height * 3, 10);
+    DrawText(screen, GFX_LEFT, nullptr, text_buffer, screen_size.h - fontDefault.height * 3, 10);
 }
 
-void drawFrames()
+void InitOutput()
 {
-    drawFrame(GFX_TOP, 0x88, 0x66, 0x00);
-    drawFrame(GFX_BOTTOM, 0x00, 0x00, 0x00);
+    sdmcInit();
+    log_file = fopen("hwtest_log.txt", "w");
+}
+
+void DrawBuffers()
+{
+    FillScreen(GFX_TOP, 0x00, 0x66, 0x88);
+    DrawBuffer(GFX_TOP);
+    
+    FillScreen(GFX_BOTTOM, 0x00, 0x00, 0x00);
+    DrawBuffer(GFX_BOTTOM);
+    
     gfxFlushBuffers();
     gfxSwapBuffers();
 }
 
-void print(gfxScreen_t screen, const char* format, ...)
+void ClearScreen(gfxScreen_t screen, u8 bg_r, u8 bg_g, u8 bg_b)
 {
-    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
-    
-    va_list arguments;
-    char *vaStr;
-
-    va_start(arguments, format);
-    vasprintf(&vaStr, format, arguments);
-    va_end(arguments);
-
-    textBuffer += std::string(vaStr);
-    svcOutputDebugString(vaStr, strlen(vaStr));
-    free(vaStr);
-
-    drawFrames();
+    FillScreen(screen, bg_r, bg_g, bg_b);
+    GetTextBuffer(screen).clear();
+    gfxFlushBuffers();
+    gfxSwapBuffers();
 }
 
-void clearScreen(gfxScreen_t screen)
+void ClearScreens()
 {
-    std::string& textBuffer = (screen == GFX_TOP) ? bufferTop : bufferBottom;
-    textBuffer.clear();
-    drawFrames();
+    ClearScreen(GFX_TOP, 0x00, 0x66, 0x88);
+    ClearScreen(GFX_BOTTOM, 0x00, 0x00, 0x00);
 }
 
-void clearScreens()
+void Print(gfxScreen_t screen, const std::string& text)
 {
-    clearScreen(GFX_TOP);
-    clearScreen(GFX_BOTTOM);
+    GetTextBuffer(screen) += text;
+    DrawBuffers();
+}
+
+void Log(gfxScreen_t screen, const std::string& text)
+{
+    Print(screen, text);
+    LogToFile(text);
+}
+
+void LogToFile(const std::string& text)
+{
+    svcOutputDebugString(text.c_str(), text.length());
+    fprintf(log_file, "%s", text.c_str());
+}
+
+void DeinitOutput()
+{
+    fclose(log_file);
+    sdmcExit();
 }

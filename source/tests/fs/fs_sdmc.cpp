@@ -2,7 +2,7 @@
 #include <cstring>
 #include <3ds.h>
 
-#include "scope_exit.h"
+#include "common/scope_exit.h"
 #include "tests/test.h"
 #include "tests/fs/fs_sdmc.h"
 
@@ -158,7 +158,7 @@ static bool TestDirRename(FS_archive sdmcArchive)
 
 void TestAll()
 {
-    FS_archive sdmcArchive = (FS_archive) { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
+    FS_archive sdmcArchive = { 0x00000009, { PATH_EMPTY, 1, (u8*) "" } };
 
     Test("SDMC", "Opening archive", FSUSER_OpenArchive(NULL, &sdmcArchive), 0L);
     Test("SDMC", "Creating and deleting file", TestFileCreateDelete(sdmcArchive), true);
