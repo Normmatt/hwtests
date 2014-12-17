@@ -127,6 +127,46 @@ static bool Uqsub8() {
     return true;
 }
 
+// USAD8
+static bool Usad8() {
+    unsigned int output;
+    unsigned int rm = 50;
+    unsigned int rn = 10;
+
+    // Regular subtraction
+    asm volatile ("USAD8 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 40);
+
+    // Absolute value subtraction (0 - 1) == 1 with USAD8. UCHAR_MAX rollover does not occur.
+    rm = 0;
+    rn = 1;
+    asm volatile ("USAD8 %[out], %[Rm], %[Rn]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn));
+    SoftAssert(output == 1);
+
+    return true;
+}
+
+// USADA8
+static bool Usada8() {
+    unsigned int output;
+    unsigned int rm = 50;
+    unsigned int rn = 10;
+    unsigned int ra = 1;
+
+    // Regular subtraction with accumulator add: abs(50 - 10) + 1
+    asm volatile ("USADA8 %[out], %[Rm], %[Rn], %[Ra]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn), [Ra] "r"(ra));
+    SoftAssert(output == 41);
+
+    // Absolute value subtraction with accumulator add: abs(0 - 1) + 9 
+    rm = 0;
+    rn = 1;
+    ra = 9;
+    asm volatile ("USADA8 %[out], %[Rm], %[Rn], %[Ra]" : [out] "=r"(output) : [Rm] "r"(rm), [Rn] "r"(rn), [Ra] "r"(ra));
+    SoftAssert(output == 10);
+
+    return true;
+}
+
 // UXTAB16
 static bool Uxtab16() {
     unsigned int output;
@@ -179,6 +219,7 @@ static bool Uxtb16() {
     return true;
 }
 
+
 void TestAll() {
     const std::string tag = "Integer";
 
@@ -188,6 +229,8 @@ void TestAll() {
     Test(tag, "SASX", Sasx(), true);
     Test(tag, "SSAX", Ssax(), true);
     Test(tag, "UQSUB8", Uqsub8(), true);
+    Test(tag, "USAD8", Usad8(), true);
+    Test(tag, "USADA8", Usada8(), true);
     Test(tag, "UXTAB16", Uxtab16(), true);
     Test(tag, "UXTB16", Uxtb16(), true);
 }
