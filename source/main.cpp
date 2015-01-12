@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     srvInit();
     aptInit();
     hidInit(NULL);
-    gfxInit();
+    gfxInitDefault();
     gfxSet3D(false);
     fsInit();
     InitOutput();
