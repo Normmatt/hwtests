@@ -13,13 +13,7 @@ static TestCaller tests[] = {
 
 int main(int argc, char** argv)
 {
-    srvInit();
-    aptInit();
-    hidInit(NULL);
     gfxInitDefault();
-    gfxSet3D(false);
-    fsInit();
-    InitOutput();
 
     ClearScreens();
     Print(GFX_TOP, "Press A to begin...\n");
@@ -49,11 +43,7 @@ int main(int argc, char** argv)
 
     ClearScreens();
     
-    DeinitOutput();
-    fsExit();
     gfxExit();
-    hidExit();
-    aptExit();
-    srvExit();
+	
     return 0;
 }
