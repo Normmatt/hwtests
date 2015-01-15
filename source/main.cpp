@@ -14,6 +14,7 @@ static TestCaller tests[] = {
 int main(int argc, char** argv)
 {
     gfxInitDefault();
+    InitOutput();
 
     ClearScreens();
     Print(GFX_TOP, "Press A to begin...\n");
@@ -44,6 +45,7 @@ int main(int argc, char** argv)
     ClearScreens();
     
     gfxExit();
+    DeinitOutput();
 	
     return 0;
 }
