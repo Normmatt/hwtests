@@ -218,6 +218,33 @@ static bool Usada8() {
     return true;
 }
 
+// SXTH
+static bool Sxth() {
+    unsigned int output = 50;
+
+    // No rotation
+    output = 0x0000FFCE;
+    asm volatile ("SXTH %[out], %[out]" : [out] "+r"(output));
+    SoftAssert(output == (u32)-50);
+
+    // ROR by 8
+    output = 0x00FCE000;
+    asm volatile ("SXTH %[out], %[out], ROR #8" : [out] "+r"(output));
+    SoftAssert(output == (u32)-800);
+
+    // ROR by 16
+    output = 0x01410000;
+    asm volatile ("SXTH %[out], %[out], ROR #16" : [out] "+r"(output));
+    SoftAssert(output == (u32)321);
+
+    // ROR by 24
+    output = 0xCE0000FF;
+    asm volatile ("SXTH %[out], %[out], ROR #24" : [out] "+r"(output));
+    SoftAssert(output == (u32)-50);
+
+    return true;
+}
+
 // UXTAB16
 static bool Uxtab16() {
     unsigned int output;
@@ -284,6 +311,7 @@ void TestAll() {
     Test(tag, "UQSUB8", Uqsub8(), true);
     Test(tag, "USAD8", Usad8(), true);
     Test(tag, "USADA8", Usada8(), true);
+    Test(tag, "SXTH", Sxth(), true);
     Test(tag, "UXTAB16", Uxtab16(), true);
     Test(tag, "UXTB16", Uxtb16(), true);
 }

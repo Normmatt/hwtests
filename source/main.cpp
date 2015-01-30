@@ -10,6 +10,7 @@ static unsigned int test_counter = 0;
 static TestCaller tests[] = {
     FS::TestAll,
     CPU::Integer::TestAll,
+    CPU::Memory::TestAll,
     Kernel::TestAll,
 };
 
