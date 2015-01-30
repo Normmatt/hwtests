@@ -7,8 +7,8 @@
 
 void SoftAssertLog(const std::string& function, int line, const std::string& condition)
 {
-    LogToFile(Common::FormatString("SOFTASSERT FAILURE: `%s`\n", condition.c_str()));
-    LogToFile(Common::FormatString("    At `%s` L%i\n", function.c_str(), line));
+    Log(GFX_TOP, Common::FormatString("SOFTASSERT FAILURE: `%s`\n", condition.c_str()));
+    Log(GFX_TOP, Common::FormatString("    At `%s` L%i\n", function.c_str(), line));
 }
 
 void PrintSuccess(const std::string& group, const std::string& name, bool val)
