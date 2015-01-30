@@ -4,11 +4,13 @@
 #include "tests/test.h"
 #include "tests/fs/fs.h"
 #include "tests/cpu/cputests.h"
+#include "tests/kernel/kernel.h"
 
 static unsigned int test_counter = 0;
 static TestCaller tests[] = {
     FS::TestAll,
-    CPU::Integer::TestAll
+    CPU::Integer::TestAll,
+    Kernel::TestAll,
 };
 
 int main(int argc, char** argv)
