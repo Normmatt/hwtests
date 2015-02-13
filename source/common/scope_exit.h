@@ -1,5 +1,5 @@
 // Copyright 2014 Citra Emulator Project
-// Licensed under GPLv2+
+// Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
 
 #pragma once
@@ -16,6 +16,10 @@ namespace detail {
     template <typename Func>
     ScopeExitHelper<Func> ScopeExit(Func&& func) { return ScopeExitHelper<Func>(std::move(func)); }
 }
+
+/// Textually concatenates two tokens. The double-expansion is required by the C preprocessor.
+#define CONCAT2(x, y) DO_CONCAT2(x, y)
+#define DO_CONCAT2(x, y) x ## y
 
 /**
  * This macro allows you to conveniently specify a block of code that will run on scope exit. Handy
@@ -34,4 +38,4 @@ namespace detail {
  * }
  * \endcode
  */
-#define SCOPE_EXIT(body) auto scope_exit_helper_##__LINE__ = detail::ScopeExit([&]() body)
+#define SCOPE_EXIT(body) auto CONCAT2(scope_exit_helper_, __LINE__) = detail::ScopeExit([&]() body)
