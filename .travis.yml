@@ -14,7 +14,7 @@ install:
   - sudo perl devkitARMupdate.pl
   - cd ctrulib/libctru
   - make
-  - sudo make install
+  - sudo -E make install
 
 script:
   - make
