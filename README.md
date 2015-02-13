@@ -1,4 +1,5 @@
 # citra-hwtests 
+[![Travis CI Build Status](https://travis-ci.org/citra-emu/hwtests.svg)](https://travis-ci.org/citra-emu/hwtests)
 
 The beginnings of a homebrew test suite for Citra.
 
